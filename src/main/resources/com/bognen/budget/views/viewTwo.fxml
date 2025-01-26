@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TreeTableView?>
+<?import javafx.scene.control.TreeTableColumn?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.bognen.budget.controller.BudgetController"
+      spacing="10"
+      style="-fx-padding: 10; -fx-background-color: #ffecb3;">
+
+    <Label text="📊 Trial Balance (IFRS)" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+    <Label text="View financial data in a hierarchical format."/>
+
+    <TreeTableView fx:id="treeTableView"
+                   showRoot="false"
+                   style="-fx-background-color: white; -fx-border-color: lightgrey; -fx-border-radius: 5;">
+        <columns>
+            <TreeTableColumn fx:id="accountColumn" text="Account" prefWidth="300"/>
+            <TreeTableColumn fx:id="debitColumn" text="Debit" prefWidth="150"/>
+            <TreeTableColumn fx:id="creditColumn" text="Credit" prefWidth="150"/>
+        </columns>
+    </TreeTableView>
+</VBox>

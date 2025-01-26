@@ -1,0 +1,26 @@
+.tree-table-view {
+    -fx-background-color: white;
+    -fx-border-color: lightgrey;
+    -fx-border-radius: 5;
+}
+
+.tree-table-row-cell {
+    -fx-border-color: lightgrey;
+    -fx-border-width: 0 0 1 0;
+}
+
+.tree-table-row-cell:expanded {
+    -fx-background-color: #e3f2fd;
+}
+
+.tree-table-cell {
+    -fx-padding: 5;
+    -fx-font-size: 12px;
+}
+
+.tree-table-view .tree-disclosure-node {
+    -fx-background-color: transparent;
+}
+.tree-table-view .tree-disclosure-node .arrow {
+    -fx-background-color: black;
+}

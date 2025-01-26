@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:id="rootPane"
+            prefWidth="1024" prefHeight="768"
+            fx:controller="com.bognen.budget.controller.Controller">
+
+    <!-- Left Sidebar -->
+    <left>
+        <VBox spacing="10" style="-fx-background-color: #f5f5f5; -fx-padding: 10;">
+            <TitledPane text="BANK" expanded="true">
+                <VBox>
+                    <Label text="Cash on Hand" />
+                    <Label text="Checking" />
+                    <Label text="Test Subaccount" />
+                </VBox>
+            </TitledPane>
+            <TitledPane text="CREDIT CARDS" expanded="false">
+                <VBox>
+                    <Label text="Mastercard" />
+                </VBox>
+            </TitledPane>
+            <TitledPane text="INVESTMENTS" expanded="false">
+                <VBox>
+                    <Label text="Emergency Fund Rolling CDs" />
+                </VBox>
+            </TitledPane>
+        </VBox>
+    </left>
+
+    <!-- Top Panel -->
+    <top>
+        <HBox spacing="10" style="-fx-background-color: #ececec; -fx-padding: 10;">
+            <Label text="Expenses: " />
+            <ProgressBar progress="0.7" />
+            <Label text="Income: " />
+            <ProgressBar progress="0.8" />
+        </HBox>
+    </top>
+
+    <!-- Center Panel -->
+    <center>
+        <StackPane fx:id="mainContentPane" style="-fx-background-color: #ffffff; -fx-padding: 10;">
+            <VBox spacing="10">
+                <Label text="Main Content Area" style="-fx-font-size: 20px;"/>
+                <GridPane gridLinesVisible="true">
+                    <Label text="Calendar View Placeholder" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                </GridPane>
+            </VBox>
+        </StackPane>
+    </center>
+
+    <!-- Right Sidebar (Optional) -->
+    <right>
+        <VBox spacing="10" style="-fx-background-color: #f9f9f9; -fx-padding: 10;">
+            <Button text="Expense Items" fx:id="btnExpenseItems" />
+            <Button text="Switch to View Two" fx:id="btnViewTwo" />
+            <Button text="Add Expense" fx:id="addExpenseButton" />
+            <Label text="Reminders" />
+        </VBox>
+    </right>
+</BorderPane>
+
