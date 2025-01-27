@@ -2,29 +2,20 @@ package com.bognen.budget.model;
 
 import javafx.beans.property.*;
 
-@Deprecated
-public class GroupedExpenseItem {
+public abstract class BudgetItem {
     Integer id;
     String description;
     boolean isValid;
-    GroupedExpenseItem parent;
 
     // JavaFX properties (lazily initialized)
-    private IntegerProperty idProperty;
-    private StringProperty descriptionProperty;
-    private BooleanProperty isValidProperty;
+    IntegerProperty idProperty;
+    StringProperty descriptionProperty;
+    BooleanProperty isValidProperty;
 
-    public GroupedExpenseItem(Integer id, String description, boolean isValid) {
+    public BudgetItem(Integer id, String description, boolean isValid) {
         this.id = id;
         this.description = description;
         this.isValid = isValid;
-    }
-
-    public GroupedExpenseItem(Integer id, String description, boolean isValid, GroupedExpenseItem parent) {
-        this.id = id;
-        this.description = description;
-        this.isValid = isValid;
-        this.parent = parent;
     }
 
     public Integer getId() {
@@ -49,14 +40,6 @@ public class GroupedExpenseItem {
 
     public void setValid(boolean valid) {
         isValid = valid;
-    }
-
-    public GroupedExpenseItem getParent() {
-        return parent;
-    }
-
-    public void setParent(GroupedExpenseItem parent) {
-        this.parent = parent;
     }
 
     // JavaFX property getters (lazily initialize)
@@ -84,5 +67,21 @@ public class GroupedExpenseItem {
     @Override
     public String toString() {
         return description;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ExpenseItem that = (ExpenseItem) o;
+        return (id != null ? id.equals(that.id) : that.id == null) &&
+               (description != null ? description.equals(that.description) : that.description == null);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (id != null ? id.hashCode() : 0);
+        result = 31 * result + (description != null ? description.hashCode() : 0);
+        return result;
     }
 }

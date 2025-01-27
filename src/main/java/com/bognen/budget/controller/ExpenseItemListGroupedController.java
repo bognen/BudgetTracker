@@ -59,10 +59,10 @@ public class ExpenseItemListGroupedController {
                     try {
                         // Load the FXML for the new form
                         FXMLLoader loader = new FXMLLoader(getClass()
-                                .getResource("/com/bognen/budget/views/expenseIncomeForm.fxml"));
+                                .getResource("/com/bognen/budget/views/metadata/expenseForm.fxml"));
                         Parent parentRoot = loader.load();
 
-                        ExpenseIncomeFormController controller = loader.getController();
+                        ExpenseItemFormController controller = loader.getController();
                         System.out.println("Controller: " + this);
                         controller.setExpenseItem(selectedExpenseItem, this);
 

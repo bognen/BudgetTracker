@@ -33,7 +33,7 @@ public class Controller {
         // Load all forms when the application is being initialized
         btnExpenseItems.setOnAction(event -> loadView("/com/bognen/budget/views/expenseItems.fxml"));
         btnViewTwo.setOnAction(event -> loadView("/com/bognen/budget/views/ViewTwo.fxml"));
-        addExpenseButton.setOnAction(event -> expenseButtonClick("/com/bognen/budget/views/expenseIncomeForm.fxml"));
+        addExpenseButton.setOnAction(event -> expenseButtonClick("/com/bognen/budget/views/metadata/expenseForm.fxml"));
     }
 
     /** Opens view in the central pane */

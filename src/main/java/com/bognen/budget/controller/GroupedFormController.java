@@ -1,6 +1,6 @@
 package com.bognen.budget.controller;
 
-import com.bognen.budget.model.ExpenseItem;
+import com.bognen.budget.model.GroupedBudgetItem;
 import com.bognen.budget.service.DatabaseService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -10,8 +10,7 @@ import javafx.stage.Stage;
 
 import java.sql.*;
 
-@Deprecated
-public class ExpenseIncomeFormController {
+public class GroupedFormController<T extends GroupedBudgetItem> {
     @FXML
     private TextField descriptionField;
 
@@ -19,16 +18,17 @@ public class ExpenseIncomeFormController {
     private CheckBox isValidCheckBox;
 
     @FXML
-    private ComboBox<ExpenseItem> parentDropdown;
+    private ComboBox<T> parentDropdown;
 
-    private ExpenseItem expenseItem; // An expense item that is being passed into the form
+    private T item;
+
     private ExpenseItemListGroupedController formController;
 
-    ObservableList<ExpenseItem> validExpenseItems = FXCollections.observableArrayList();
+    ObservableList<T> validItems = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
-        validExpenseItems.clear();
+        validItems.clear();
         isValidCheckBox.setSelected(true);
         String query = "SELECT id, description, isValid FROM expense_items where isValid = 1";
 
@@ -41,19 +41,25 @@ public class ExpenseIncomeFormController {
                 String description = resultSet.getString("description");
                 boolean isValid = resultSet.getInt("isValid") == 1;
 
-                validExpenseItems.add(new ExpenseItem(id, description, isValid));
+                T item = createItem(id, description, isValid);
+                validItems.add(item);
             }
-            parentDropdown.setItems(FXCollections.observableArrayList(validExpenseItems));
+            parentDropdown.setItems(FXCollections.observableArrayList(validItems));
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    // Must be implemented by child class
+    protected T createItem(int id, String description, boolean isValid) {
+        throw new UnsupportedOperationException("Must implement createItem in a subclass");
     }
 
     /** Method handles click on save button of the Expense form */
     public void handleSave() {
         String description = descriptionField.getText();
         boolean isValid = isValidCheckBox.isSelected();
-        ExpenseItem parentItem = parentDropdown.getSelectionModel().getSelectedItem();
+        T parentItem = parentDropdown.getSelectionModel().getSelectedItem();
 
         if (description.isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Description cannot be empty.", ButtonType.OK);
@@ -62,7 +68,7 @@ public class ExpenseIncomeFormController {
         }
 
         String query = "INSERT INTO expense_items (description, isValid) VALUES (?, ?)";
-        if(expenseItem != null) {
+        if(item != null) {
             query = "UPDATE expense_items SET description = ?, isValid = ? WHERE id = ?";
         }
 
@@ -73,22 +79,22 @@ public class ExpenseIncomeFormController {
             statement.setInt(2, isValid ? 1 : 0);
 
             // Set the third
-            if(expenseItem != null) { statement.setInt(3, expenseItem.getId()); }
+            if(item != null) { statement.setInt(3, item.getId()); }
 
             int affectedRows = statement.executeUpdate();
 
             // If the item was successfully updated, update its parent-child relations
             if (affectedRows > 0) {
                 int affectedId = 0;
-                if (expenseItem == null) { // For INSERT
+                if (item == null) { // For INSERT
                     try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
                         if (generatedKeys.next()) {
                             affectedId = generatedKeys.getInt(1);
                         }
                     }
                 } else { // For UPDATE
-                    System.out.println("Updated ID: " + expenseItem.getId());
-                    affectedId = expenseItem.getId();
+                    System.out.println("Updated ID: " + item.getId());
+                    affectedId = item.getId();
                 }
                 updateParent(affectedId, parentItem);
             } else {
@@ -117,22 +123,19 @@ public class ExpenseIncomeFormController {
         stage.close();
     }
 
-    public void setExpenseItem(ExpenseItem expenseItem, ExpenseItemListGroupedController listController) {
-        this.expenseItem = expenseItem;
-        if (expenseItem != null) {
-            descriptionField.setText(expenseItem.getDescription());
-            isValidCheckBox.setSelected(expenseItem.isValid());
-            parentDropdown.setValue((ExpenseItem) expenseItem.getParent());
-//            if(parentDropdown.getSelectionModel().getSelectedItem() != null) {
-//                parentDropdown.getSelectionModel().select(parentDropdown.getSelectionModel().getSelectedItem());
-//            }
+    public void setExpenseItem(T item, ExpenseItemListGroupedController listController) {
+        this.item = item;
+        if (item != null) {
+            descriptionField.setText(item.getDescription());
+            isValidCheckBox.setSelected(item.isValid());
+            parentDropdown.setValue((T) item.getParent());
             this.formController = listController;
             System.out.println("In set item - "+this.formController);
         }
     }
 
     /** Method updates parent child relations */
-    private void updateParent(int affectedId, ExpenseItem parentItem) {
+    private void updateParent(int affectedId, T parentItem) {
         try (Connection conn = DatabaseService.getConnection()) {
             if (parentItem == null) {
                 // Delete the existing relation
