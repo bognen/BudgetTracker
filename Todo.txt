@@ -1,4 +1,4 @@
-- Move SQL Queries to Models
+- Move SQL Queries to FormContoler
 - Create generic based FormController (same as GroupedFormController)
 - Convert GroupedListController to Generic
 - Convert ListController to Generic

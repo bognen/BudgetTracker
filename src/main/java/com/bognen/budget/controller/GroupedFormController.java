@@ -30,7 +30,8 @@ public class GroupedFormController<T extends GroupedBudgetItem> {
     public void initialize() {
         validItems.clear();
         isValidCheckBox.setSelected(true);
-        String query = "SELECT id, description, isValid FROM expense_items where isValid = 1";
+
+        String query = getItemsList();
 
         try (Connection conn = DatabaseService.getConnection();
              Statement statement = conn.createStatement();
@@ -50,7 +51,35 @@ public class GroupedFormController<T extends GroupedBudgetItem> {
         }
     }
 
-    // Must be implemented by child class
+    // Methods must be implemented by child class
+    protected String getItemsList() {
+        throw new UnsupportedOperationException("Must implement getItemsList in a subclass");
+    }
+
+    protected String getInsertItemQuery() {
+        throw new UnsupportedOperationException("Must implement insertItemQuery in a subclass");
+    }
+
+    protected String getUpdateItemQuery() {
+        throw new UnsupportedOperationException("Must implement updateItemQuery in a subclass");
+    }
+
+    protected String getCheckParentRelationQuery() {
+        throw new UnsupportedOperationException("Must implement checkParentRelationQuery in a subclass");
+    }
+
+    protected String getInsertParentRelationQuery() {
+        throw new UnsupportedOperationException("Must implement insertParentQuery in a subclass");
+    }
+
+    protected String getUpdateParentRelationQuery() {
+        throw new UnsupportedOperationException("Must implement updateDeleteParentQuery in a subclass");
+    }
+
+    protected String getDeleteParentRelationQuery() {
+        throw new UnsupportedOperationException("Must implement deleteParentQuery in a subclass");
+    }
+
     protected T createItem(int id, String description, boolean isValid) {
         throw new UnsupportedOperationException("Must implement createItem in a subclass");
     }
@@ -67,9 +96,9 @@ public class GroupedFormController<T extends GroupedBudgetItem> {
             return;
         }
 
-        String query = "INSERT INTO expense_items (description, isValid) VALUES (?, ?)";
+        String query = getInsertItemQuery();
         if(item != null) {
-            query = "UPDATE expense_items SET description = ?, isValid = ? WHERE id = ?";
+            query = getUpdateItemQuery();
         }
 
         try (Connection connection = DatabaseService.getConnection();
@@ -130,7 +159,6 @@ public class GroupedFormController<T extends GroupedBudgetItem> {
             isValidCheckBox.setSelected(item.isValid());
             parentDropdown.setValue((T) item.getParent());
             this.formController = listController;
-            System.out.println("In set item - "+this.formController);
         }
     }
 
@@ -139,7 +167,7 @@ public class GroupedFormController<T extends GroupedBudgetItem> {
         try (Connection conn = DatabaseService.getConnection()) {
             if (parentItem == null) {
                 // Delete the existing relation
-                String deleteSql = "DELETE FROM expense_items_relations WHERE child_id = ?";
+                String deleteSql = getDeleteParentRelationQuery();
                 try (PreparedStatement stmt = conn.prepareStatement(deleteSql)) {
                     stmt.setInt(1, affectedId);
                     stmt.executeUpdate();
@@ -148,13 +176,14 @@ public class GroupedFormController<T extends GroupedBudgetItem> {
             }
 
             // Check for an existing relation
-            String selectSql = "SELECT parent_id FROM expense_items_relations WHERE child_id = ?";
+            //String selectSql = "SELECT parent_id FROM expense_items_relations WHERE child_id = ?";
+            String selectSql = getCheckParentRelationQuery();
             try (PreparedStatement stmt = conn.prepareStatement(selectSql)) {
                 stmt.setInt(1, affectedId);
                 ResultSet rs = stmt.executeQuery();
                 if (rs.next()) {
                     // Update existing relation
-                    String updateSql = "UPDATE expense_items_relations SET parent_id = ? WHERE child_id = ?";
+                    String updateSql = getUpdateParentRelationQuery();
                     try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
                         updateStmt.setInt(1, parentItem.getId());
                         updateStmt.setInt(2, affectedId);
@@ -162,7 +191,7 @@ public class GroupedFormController<T extends GroupedBudgetItem> {
                     }
                 } else {
                     // Insert new relation
-                    String insertSql = "INSERT INTO expense_items_relations (parent_id, child_id) VALUES (?, ?)";
+                    String insertSql = getInsertParentRelationQuery();
                     try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
                         insertStmt.setInt(1, parentItem.getId());
                         insertStmt.setInt(2, affectedId);
