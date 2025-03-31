@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      spacing="10" fx:controller="com.bognen.budget.controller.ExpenseItemGroupedListController"
+      style="-fx-padding: 10; -fx-background-color: #e0f7fa;">
+    <Label text="📊 View One" style="-fx-font-size: 18px;"/>
+    <!-- Toolbar with Buttons -->
+    <HBox spacing="5">
+        <!-- Corrected Button definition -->
+        <Button fx:id="btnAdd" >
+            <graphic>
+                <ImageView fitHeight="16" fitWidth="16">
+                    <image>
+                        <Image url="@../../images/add.png"/>
+                    </image>
+                </ImageView>
+            </graphic>
+            <tooltip>
+                <Tooltip text="Add Item"/>
+            </tooltip>
+        </Button>
+        <Button fx:id="btnEdt" >
+            <graphic>
+                <ImageView fitHeight="16" fitWidth="16">
+                    <image>
+                        <Image url="@../../images/edit.png"/>
+                    </image>
+                </ImageView>
+            </graphic>
+            <tooltip>
+                <Tooltip text="Edit Item"/>
+            </tooltip>
+        </Button>
+        <Button fx:id="btnRmv" >
+            <graphic>
+                <ImageView fitHeight="16" fitWidth="16">
+                    <image>
+                        <Image url="@../../images/remove.png"/>
+                    </image>
+                </ImageView>
+            </graphic>
+            <tooltip>
+                <Tooltip text="Remove Item"/>
+            </tooltip>
+        </Button>
+    </HBox>
+
+    <TreeTableView fx:id="groupedTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TreeTableColumn fx:id="idColumn" text="ID" />
+            <TreeTableColumn fx:id="isValidColumn" text="Is Valid" />
+            <TreeTableColumn fx:id="descriptionColumn" text="Description" />
+        </columns>
+    </TreeTableView>
+
+</VBox>

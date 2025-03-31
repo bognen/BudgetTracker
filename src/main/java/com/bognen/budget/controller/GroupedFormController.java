@@ -22,7 +22,7 @@ public class GroupedFormController<T extends GroupedBudgetItem> {
 
     private T item;
 
-    private ExpenseItemListGroupedController formController;
+    private GroupedListController<T> formController;
 
     ObservableList<T> validItems = FXCollections.observableArrayList();
 
@@ -152,7 +152,7 @@ public class GroupedFormController<T extends GroupedBudgetItem> {
         stage.close();
     }
 
-    public void setExpenseItem(T item, ExpenseItemListGroupedController listController) {
+    public void setItem(T item, GroupedListController<T> listController) {
         this.item = item;
         if (item != null) {
             descriptionField.setText(item.getDescription());

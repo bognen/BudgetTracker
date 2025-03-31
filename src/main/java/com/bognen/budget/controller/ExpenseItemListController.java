@@ -58,7 +58,7 @@ public class ExpenseItemListController {
                         Parent root = loader.load();
 
                         ExpenseItemFormController controller = loader.getController();
-                        controller.setExpenseItem(selectedItem, null); //+++
+                        controller.setItem(selectedItem, null); //+++
 
                         // Create a new stage for the form
                         Stage formStage = new Stage();

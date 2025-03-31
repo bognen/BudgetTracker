@@ -2,6 +2,7 @@ package com.bognen.budget.model;
 
 import javafx.beans.property.*;
 
+@Deprecated
 public class ExpenseItemBack {
     Integer id;
     String description;

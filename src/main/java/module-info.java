@@ -15,6 +15,8 @@ module com.bognen.budget {
 
     opens com.bognen.budget to javafx.fxml;
     opens com.bognen.budget.model to javafx.base;
+
+    opens com.bognen.budget.images;
     exports com.bognen.budget;
     exports com.bognen.budget.controller;
     opens com.bognen.budget.controller to javafx.fxml;

@@ -1,17 +1,16 @@
 package com.bognen.budget.controller;
 
-import com.bognen.budget.model.ExpenseItem;
+import com.bognen.budget.model.GroupedBudgetItem;
 import com.bognen.budget.service.DatabaseService;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.TreeTableView;
 import javafx.scene.input.MouseButton;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -21,20 +20,22 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
 
-@Deprecated
-public class ExpenseItemListGroupedController {
+public class GroupedListController<T extends GroupedBudgetItem> {
 
+    GroupedFormController<T> formController;
     @FXML
-    private TreeTableView<ExpenseItem> expenseTable;
+    private TreeTableView<T> groupedTable;
     @FXML
-    private TreeTableColumn<ExpenseItem, Integer> idColumn;
+    private TreeTableColumn<T, Integer> idColumn;
     @FXML
-    private TreeTableColumn<ExpenseItem, String> descriptionColumn;
+    private TreeTableColumn<T, String> descriptionColumn;
     @FXML
-    private TreeTableColumn<ExpenseItem, Boolean> isValidColumn;
+    private TreeTableColumn<T, Boolean> isValidColumn;
 
     @FXML
     public void initialize() {
@@ -45,31 +46,32 @@ public class ExpenseItemListGroupedController {
                 new SimpleBooleanProperty(param.getValue().getValue().isValid()));
 
         // Load initial data and build tree
-        TreeItem<ExpenseItem> root = new TreeItem<>(new ExpenseItem(0, "Root", true, null));
+        //+++TreeItem<T> root = new TreeItem<>(new ExpenseItem(0, "Root", true, null));
+        formController = getFormController();
+        T rooItem = formController.createItem(0, "Root", true);
+        TreeItem<T> root = new TreeItem<T>(rooItem);
         root.setExpanded(true);
 
-        loadExpenses(root);
+        loadList(root);
 
-        expenseTable.setRoot(root);
-        expenseTable.setShowRoot(false); // Hide the root item
-        expenseTable.setOnMouseClicked(event -> {
+        groupedTable.setRoot(root);
+        groupedTable.setShowRoot(false); // Hide the root item
+        groupedTable.setOnMouseClicked(event -> {
             if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
-                TreeItem<ExpenseItem> selectedTreeItem = expenseTable.getSelectionModel().getSelectedItem();
-                ExpenseItem selectedExpenseItem = selectedTreeItem.getValue();
-                if (selectedExpenseItem != null) {
+                TreeItem<T> selectedTreeItem = groupedTable.getSelectionModel().getSelectedItem();
+                T selectedItem = selectedTreeItem.getValue();
+                if (selectedItem != null) {
                     try {
                         // Load the FXML for the new form
-                        FXMLLoader loader = new FXMLLoader(getClass()
-                                .getResource("/com/bognen/budget/views/metadata/expenseForm.fxml"));
+                        FXMLLoader loader = getFxmlLoader();
                         Parent parentRoot = loader.load();
 
-                        ExpenseItemFormController controller = loader.getController();
-                        System.out.println("Controller: " + this);
-                        //+++controller.setItem(selectedExpenseItem, this);
+                        GroupedFormController<T> controller = loader.getController();
+                        controller.setItem(selectedItem, this);
 
                         // Create a new stage for the form
                         Stage formStage = new Stage();
-                        formStage.setTitle("Add Expense or Income");
+                        formStage.setTitle("Grouped List of Items");  //+++
                         formStage.setScene(new Scene(parentRoot, 350, 150));
                         formStage.initModality(Modality.APPLICATION_MODAL); // Blocks interaction with the main window
                         formStage.showAndWait(); // Wait until the form is closed
@@ -81,28 +83,36 @@ public class ExpenseItemListGroupedController {
         });
     }
 
-    /** BFS algorithm */
-    private void loadExpenses(TreeItem<ExpenseItem> root) {
-        String query = """
-            SELECT child.id AS id,
-                   child.description AS description,
-                   child.isValid AS isValid,
-                   parent.id AS parent_id,
-                   parent.description AS parent_description,
-                   parent.isValid AS parent_isValid
-            FROM expense_items child
-            LEFT JOIN expense_items_relations rel
-              ON child.id = rel.child_id
-            LEFT JOIN expense_items parent
-              ON rel.parent_id = parent.id;
-        """;
+    /*****************************************************/
+    /*** METHODS TO BE IMPLEMENTED BY CONCRETE CLASSES ***/
+    /*****************************************************/
+    protected GroupedFormController<T> getFormController() {
+        //= new GroupedFormController<T>()
+        throw new UnsupportedOperationException("Must implement getFormController in a subclass");
+    }
 
+    protected FXMLLoader getFxmlLoader(){
+        throw new UnsupportedOperationException("Must implement getFxmlLoader in a subclass");
+//        return new FXMLLoader(getClass()
+//                .getResource("/com/bognen/budget/views/metadata/expenseForm.fxml"));
+    };
+
+    protected String getSelectItemParentQuery(){
+        throw new UnsupportedOperationException("Must implement SelectItemParentQuery in a subclass");
+    }
+
+    //+++++ TODO: Implement protected method to
+
+    /** BFS algorithm */
+    private void loadList(TreeItem<T> root) {
+
+        String query = getSelectItemParentQuery();
         try (Connection conn = DatabaseService.getConnection();
              Statement statement = conn.createStatement();
              ResultSet resultSet = statement.executeQuery(query)) {
 
-            List<TreeItem<ExpenseItem>> itemList = new ArrayList<>();
-            Deque<TreeItem<ExpenseItem>> processQueue = new LinkedList<>();
+            List<TreeItem<T>> itemList = new ArrayList<>();
+            Deque<TreeItem<T>> processQueue = new LinkedList<>();
 
             while (resultSet.next()) {
                 // Extract child data
@@ -116,29 +126,29 @@ public class ExpenseItemListGroupedController {
                 boolean parentIsValid = resultSet.getInt("parent_isValid") == 1;
 
                 // Out of each result set, create TreeItem
-                TreeItem<ExpenseItem> item =
-                    new TreeItem<>(new ExpenseItem(id, description, isValid,
-                            new ExpenseItem(parentId, parentDescription, parentIsValid)));
+                T parentItem = formController.createItem(parentId, parentDescription, parentIsValid);
+                T item = formController.createItem(id, description, isValid);
+                item.setParent(parentItem);
 
-                itemList.add(item);
+                TreeItem<T> treeItem = new TreeItem<>(item);
+                itemList.add(treeItem);
 
                 // If the element does not have parent, parent id == 0
-                if(parentId == 0) processQueue.addFirst(item);
+                if(parentId == 0) processQueue.addFirst(treeItem);
             }
 
-            // Add all parentless elements to the root
+            // Add all parent-less elements to the root
             root.getChildren().addAll(processQueue);
 
             // Process all elements starting from parentless elements
             while (!processQueue.isEmpty()) {
-                TreeItem<ExpenseItem> processedParent = processQueue.poll();  // Retrieve and removes the head of the queue
-                for(TreeItem<ExpenseItem> item : itemList) {
+                TreeItem<T> processedParent = processQueue.poll();  // Retrieve and removes the head of the queue
+                for(TreeItem<T> item : itemList) {
                     if(item.getValue().getParent() != null &&
                        item.getValue().getParent().getId() == processedParent.getValue().getId()) {
                         processedParent.getChildren().add(item);
                         processQueue.addLast(item);
                     }
-
                 }
             }
         } catch (SQLException e) {
