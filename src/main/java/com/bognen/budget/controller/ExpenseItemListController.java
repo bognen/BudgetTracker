@@ -54,11 +54,11 @@ public class ExpenseItemListController {
                     try {
                         // Load the FXML for the new form
                         FXMLLoader loader = new FXMLLoader(getClass()
-                                .getResource("/com/bognen/budget/views/expenseIncomeForm.fxml"));
+                                .getResource("/com/bognen/budget/views/metadata/expenseForm.fxml"));
                         Parent root = loader.load();
 
-                        ExpenseIncomeFormController controller = loader.getController();
-                        controller.setExpenseItem(selectedItem, null); //+++
+                        ExpenseItemFormController controller = loader.getController();
+                        controller.setItem(selectedItem, null); //+++
 
                         // Create a new stage for the form
                         Stage formStage = new Stage();

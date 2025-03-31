@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+
+<GridPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.bognen.budget.controller.ExpenseItemFormController"
+          hgap="10" vgap="10" alignment="CENTER" style="-fx-padding: 20;">
+    <Label text="Description:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+    <TextField fx:id="descriptionField" GridPane.columnIndex="1" GridPane.rowIndex="0" prefWidth="250"/>
+
+    <Label text="Parent Expense:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+    <ComboBox fx:id="parentDropdown" GridPane.columnIndex="1" GridPane.rowIndex="1" prefWidth="250"/>
+
+    <Label text="Valid:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+    <CheckBox fx:id="isValidCheckBox" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+    <Button text="Save" onAction="#handleSave" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+    <Button text="Cancel" onAction="#handleCancel" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+</GridPane>

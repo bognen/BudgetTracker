@@ -10,6 +10,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.net.URL;
 
 public class Controller {
 
@@ -31,9 +32,9 @@ public class Controller {
     @FXML
     public void initialize() {
         // Load all forms when the application is being initialized
-        btnExpenseItems.setOnAction(event -> loadView("/com/bognen/budget/views/expenseItems.fxml"));
+        btnExpenseItems.setOnAction(event -> loadView("/com/bognen/budget/views/metadata/expenseItemsList.fxml"));
         btnViewTwo.setOnAction(event -> loadView("/com/bognen/budget/views/ViewTwo.fxml"));
-        addExpenseButton.setOnAction(event -> expenseButtonClick("/com/bognen/budget/views/expenseIncomeForm.fxml"));
+        addExpenseButton.setOnAction(event -> expenseButtonClick("/com/bognen/budget/views/metadata/expenseForm.fxml"));
     }
 
     /** Opens view in the central pane */
